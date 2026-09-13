@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cek Balasan — Pecut</title>
+<meta name="description" content="Pantau balasan lamaran: pengirim, subject, ringkasan, dan status dibaca.">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230f6d6a'/%3E%3Cpath d='M19 6 9.5 15.5M19 6l-5 13-2.5-5.5L6 11Z' fill='none' stroke='white' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% include "_icons.html" %}
+<a class="skip" href="#main">Lompat ke konten</a>
+
+<header class="topbar">
+  <div class="topbar__in">
+    <a class="brand" href="/">
+      <span class="brand__mark"><svg class="ic"><use href="#i-send"/></svg></span>
+      <span>
+        <span class="brand__name">Pecut</span><br>
+        <span class="brand__sub">Lamaran Gmail</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Navigasi utama">
+      <a href="/"><svg class="ic ic-sm"><use href="#i-send"/></svg>Kirim</a>
+      <a href="/replies" class="is-active" aria-current="page"><svg class="ic ic-sm"><use href="#i-inbox"/></svg>Balasan</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+  <div class="page-head">
+    <div class="eyebrow">Kotak masuk</div>
+    <h1>Balasan lamaran.</h1>
+    <p>Pesan masuk dari perusahaan yang kamu lamar, ditandai agar mudah dibedakan
+       dari email lain. Hasil disimpan {{ ttl }} detik supaya halaman terasa cepat.</p>
+  </div>
+
+  <div class="actions" style="margin-bottom:16px">
+    <a class="btn btn--ghost btn--sm" href="/replies?refresh=1"><svg class="ic ic-sm"><use href="#i-refresh"/></svg>Ambil terbaru dari Gmail</a>
+    <a class="btn btn--ghost btn--sm" href="/"><svg class="ic ic-sm"><use href="#i-send"/></svg>Ke halaman kirim</a>
+  </div>
+
+  {% if error %}
+  <div class="notice error">
+    <svg class="ic"><use href="#i-alert"/></svg>
+    <div>
+      {{ error }}
+      {% if oauth and not oauth.read.connected %}
+      <div style="margin-top:10px"><a class="btn btn--accent btn--sm" href="/oauth/read"><svg class="ic ic-sm"><use href="#i-key"/></svg>Hubungkan izin baca</a></div>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+
+  {% set unread_count = replies|selectattr('unread')|list|length %}
+  {% set known_count = replies|selectattr('known')|list|length %}
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-inbox"/></svg>Pesan masuk</div>
+      <div class="stat__value">{{ replies|length }}</div>
+      <div class="stat__hint">di kotak masuk</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-check"/></svg>Dari tujuan</div>
+      <div class="stat__value">{{ known_count }}</div>
+      <div class="stat__hint">alamat lamaran</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-mail"/></svg>Belum dibaca</div>
+      <div class="stat__value">{{ unread_count }}</div>
+      <div class="stat__hint">perlu dilihat</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-eye"/></svg>Terbaca</div>
+      <div class="stat__value">{{ replies|length - unread_count }}</div>
+      <div class="stat__hint">sudah dibuka</div>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:18px">
+    <div class="section__head">
+      <h2><svg class="ic"><use href="#i-inbox"/></svg>Daftar pesan</h2>
+    </div>
+
+    {% if replies %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dari</th><th>Subject</th><th>Ringkasan</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for r in replies %}
+          <tr class="{{ 'row-unread' if r.unread else '' }}">
+            <td>
+              <div>{{ r.from }}</div>
+              {% if r.known %}<span class="badge known" style="margin-top:5px"><svg class="ic ic-sm"><use href="#i-check"/></svg>lamaran</span>{% endif %}
+            </td>
+            <td>
+              <div>{{ r.subject }}</div>
+              <div class="hint mono">{{ r.date }}</div>
+            </td>
+            <td class="muted">{{ r.snippet }}</td>
+            <td>
+              {% if r.unread %}<span class="badge unread"><span class="dot"></span>belum dibaca</span>
+              {% else %}<span class="badge read">dibaca</span>{% endif %}
+            </td>
+            <td class="nowrap">
+              {% if r.unread %}
+              <form class="inline-form" action="/replies/read" method="post">
+                <input type="hidden" name="id" value="{{ r.id }}">
+                <button class="btn btn--ghost btn--sm" type="submit"><svg class="ic ic-sm"><use href="#i-check"/></svg>Tandai dibaca</button>
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <svg class="ic"><use href="#i-inbox"/></svg>
+      <p>Tidak ada pesan masuk.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <div class="notice info" style="margin-top:18px">
+    <svg class="ic"><use href="#i-info"/></svg>
+    <div>
+      Gmail tidak menyediakan <i>read receipt</i> (apakah penerima membuka email kita).
+      Yang bisa dipantau: pesan masuk sebagai balasan, dan status dibaca/belum dibaca
+      di kotak masuk kita sendiri. Indikator "dibuka" ada di halaman <a href="/">Kirim</a>.
+    </div>
+  </div>
+
+  {% endif %}
+</main>
+
+<footer class="foot">
+  <span>Pecut Lamaran Gmail</span>
+  <span class="dot-sep"></span>
+  <span>Kotak masuk dibaca lewat Gmail API</span>
+  <span class="dot-sep"></span>
+  <a href="/">Ke halaman kirim</a>
+</footer>
+</body>
+</html>

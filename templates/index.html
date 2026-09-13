@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pecut — Kirim Lamaran Gmail</title>
+<meta name="description" content="Kirim lamaran kerja massal dari satu akun Gmail, dengan pelacakan balasan dan indikator dibuka.">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230f6d6a'/%3E%3Cpath d='M19 6 9.5 15.5M19 6l-5 13-2.5-5.5L6 11Z' fill='none' stroke='white' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% include "_icons.html" %}
+<a class="skip" href="#main">Lompat ke konten</a>
+
+<header class="topbar">
+  <div class="topbar__in">
+    <a class="brand" href="/">
+      <span class="brand__mark"><svg class="ic"><use href="#i-send"/></svg></span>
+      <span>
+        <span class="brand__name">Pecut</span><br>
+        <span class="brand__sub">Lamaran Gmail</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Navigasi utama">
+      <a href="/" class="is-active" aria-current="page"><svg class="ic ic-sm"><use href="#i-send"/></svg>Kirim</a>
+      <a href="/replies"><svg class="ic ic-sm"><use href="#i-inbox"/></svg>Balasan</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+  <div class="page-head">
+    <div class="eyebrow">Workspace lamaran</div>
+    <h1>Satu Gmail, banyak perusahaan.</h1>
+    <p>Kelola daftar tujuan, kirim lamaran, jadwalkan otomatis, lalu pantau balasan —
+       semuanya dari satu halaman. Sumber daftar: <span class="mono">daftar.csv</span>.</p>
+  </div>
+
+  {% if dry_run %}
+  <div class="notice warn">
+    <svg class="ic"><use href="#i-alert"/></svg>
+    <div><b>Mode simulasi aktif.</b> Email tidak benar-benar dikirim.</div>
+  </div>
+  {% endif %}
+
+  {% if daftar_problem %}
+  <div class="notice error">
+    <svg class="ic"><use href="#i-alert"/></svg>
+    <div>
+      <b>daftar.csv ada isinya tapi tidak bisa dibaca.</b><br>
+      {{ daftar_problem }}<br>
+      <span class="hint">Perbaiki file (header harus memuat kolom <span class="mono">email</span> dan
+      <span class="mono">subject</span>; pemisah boleh koma, titik-koma, atau tab), lalu muat ulang.</span>
+    </div>
+  </div>
+  {% endif %}
+
+  {% with messages=get_flashed_messages(with_categories=true) %}
+  {% for category,msg in messages %}
+  <div class="notice {{ 'ok' if category=='ok' else 'error' }}">
+    <svg class="ic"><use href="#{{ 'i-check' if category=='ok' else 'i-alert' }}"/></svg>
+    <div>{{ msg }}</div>
+  </div>
+  {% endfor %}
+  {% endwith %}
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-list"/></svg>Tujuan</div>
+      <div class="stat__value">{{ total }}</div>
+      <div class="stat__hint">baris di daftar</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-check"/></svg>Terkirim</div>
+      <div class="stat__value">{{ sent_ok }}</div>
+      <div class="stat__hint">berstatus OK</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-eye"/></svg>Dibuka?</div>
+      <div class="stat__value">{{ opened }}</div>
+      <div class="stat__hint">indikasi piksel</div>
+    </div>
+    <div class="stat">
+      <div class="stat__label"><svg class="ic ic-sm"><use href="#i-clip"/></svg>Berkas CV</div>
+      <div class="stat__value">{{ files|length }}</div>
+      <div class="stat__hint">di folder uploads</div>
+    </div>
+  </div>
+
+  <div class="stack" style="margin-top:18px">
+
+    <!-- ============================ IZIN GOOGLE ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-key"/></svg>Izin Google</h2>
+        <p>Hubungkan akun Gmail satu kali. Tidak butuh browser otomatis — kamu diarahkan ke
+           halaman izin Google lalu kembali ke sini.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Izin</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          {% for kind, info in oauth.items() %}
+            <tr>
+              <td>{{ info.label }}</td>
+              <td>
+                {% if info.connected %}<span class="badge ok"><span class="dot"></span>terhubung</span>
+                {% else %}<span class="badge fail"><span class="dot"></span>belum</span>{% endif %}
+              </td>
+              <td class="nowrap">
+                <a class="btn {{ 'btn--ghost' if info.connected else 'btn--accent' }} btn--sm" href="/oauth/{{ kind }}">
+                  {% if info.connected %}Hubungkan ulang{% else %}Hubungkan{% endif %}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="hint" style="margin-top:12px">
+        Callback: <span class="mono">{{ redirect_uri }}</span>. Kalau Google menolak dengan
+        <span class="mono">redirect_uri_mismatch</span>, daftarkan URI itu di Google Cloud Console
+        atau jalankan dengan <span class="mono">PECUT_REDIRECT_URI</span>.
+      </p>
+    </section>
+
+    <!-- ============================ DAFTAR TUJUAN ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-list"/></svg>Daftar tujuan <span class="badge">{{ total }}</span></h2>
+        <p>Halaman selalu membaca ulang <span class="mono">daftar.csv</span>. Mengubah dari aplikasi lain?
+           tekan <b>Muat ulang</b>.</p>
+      </div>
+
+      {% if rows %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Email</th><th>Subject</th><th>CV</th><th>Status</th><th>Baca</th><th></th></tr>
+          </thead>
+          <tbody>
+          {% for r in rows %}
+            <tr>
+              <td class="num">{{ r.no }}</td>
+              <td class="email">{{ r.email }}</td>
+              <td>{{ r.subject }}</td>
+              <td>{% if r.cv %}<span class="mono">{{ r.cv }}</span>{% else %}<span class="muted">default</span>{% endif %}</td>
+              <td>{% if r.status %}<span class="badge {{ r.status }}">{{ r.status }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+              <td>
+                {% if r.track and r.track.opens %}
+                  <span class="badge dibuka track-title" title="Piksel dimuat {{ r.track.opens }}× — terakhir {{ r.track.last }}">
+                    <svg class="ic ic-sm"><use href="#i-eye"/></svg>dibuka? {{ r.track.opens }}×
+                  </span>
+                {% elif r.track %}
+                  <span class="muted">belum</span>
+                {% else %}
+                  <span class="muted">—</span>
+                {% endif %}
+              </td>
+              <td class="nowrap">
+                <form class="inline-form" action="/daftar/delete" method="post" onsubmit="return confirm('Hapus {{ r.email }}?')">
+                  <input type="hidden" name="no" value="{{ r.no }}">
+                  <button class="btn btn--danger btn--sm" type="submit" title="Hapus baris">
+                    <svg class="ic ic-sm"><use href="#i-trash"/></svg>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty">
+        <svg class="ic"><use href="#i-list"/></svg>
+        <p>Belum ada tujuan. Tambah di bawah, atau impor dari file CSV.</p>
+      </div>
+      {% endif %}
+
+      <div class="grid-2" style="margin-top:20px">
+        <div>
+          <div class="eyebrow">Tambah satu baris</div>
+          <form action="/daftar/add" method="post">
+            <div class="field">
+              <label for="add-email">Email tujuan</label>
+              <input id="add-email" type="email" name="email" placeholder="hrd@perusahaan.com" required>
+            </div>
+            <div class="field">
+              <label for="add-subject">Subject</label>
+              <input id="add-subject" type="text" name="subject" placeholder="Lamaran Operator Produksi" required>
+            </div>
+            <div class="field">
+              <label for="add-cv">CV <span class="hint">(kosong = pakai CV default)</span></label>
+              <input id="add-cv" type="text" name="cv" placeholder="cv-admin.pdf">
+            </div>
+            <button class="btn" type="submit"><svg class="ic ic-sm"><use href="#i-plus"/></svg>Tambah</button>
+          </form>
+        </div>
+
+        <div>
+          <div class="eyebrow">Impor dari file</div>
+          <form action="/daftar/upload" method="post" enctype="multipart/form-data">
+            <div class="field">
+              <label for="up-csv">Pilih file CSV</label>
+              <input id="up-csv" type="file" name="csv_file">
+            </div>
+            <button class="btn btn--ghost btn--block" type="submit"><svg class="ic ic-sm"><use href="#i-download"/></svg>Timpa daftar</button>
+          </form>
+
+          <div class="eyebrow" style="margin-top:16px">Atau dari folder HP</div>
+          <form action="/daftar/import-path" method="post">
+            <div class="field">
+              <label for="up-path">Lokasi file <span class="hint">(tanpa picker browser)</span></label>
+              <input id="up-path" type="text" name="path" placeholder="/sdcard/Download/daftar.csv" value="/sdcard/Download/daftar.csv">
+            </div>
+            <button class="btn btn--ghost btn--block" type="submit"><svg class="ic ic-sm"><use href="#i-folder"/></svg>Ambil file</button>
+          </form>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <div class="eyebrow">Edit daftar.csv langsung</div>
+        <form action="/daftar/save" method="post">
+          <div class="field">
+            <textarea name="daftar_text" spellcheck="false" aria-label="Isi daftar.csv">{{ rows_text }}</textarea>
+          </div>
+          <input type="hidden" name="daftar_sig" value="{{ daftar_sig }}">
+          <button class="btn" type="submit"><svg class="ic ic-sm"><use href="#i-save"/></svg>Simpan daftar.csv</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============================ BERKAS CV ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-clip"/></svg>Berkas CV</h2>
+        <p>Unggah lampiran ke folder <span class="mono">uploads/</span>. Nama file di kolom
+           <span class="mono">cv</span> harus sama dengan yang ada di sini.</p>
+      </div>
+      <form action="/upload-files" method="post" enctype="multipart/form-data">
+        <div class="field">
+          <input type="file" name="files" multiple aria-label="Pilih berkas CV">
+        </div>
+        <button class="btn btn--ghost" type="submit"><svg class="ic ic-sm"><use href="#i-download"/></svg>Unggah berkas</button>
+      </form>
+      {% if files %}
+      <ul class="filelist">
+        {% for f in files %}<li><svg class="ic ic-sm"><use href="#i-clip"/></svg>{{ f }}</li>{% endfor %}
+      </ul>
+      {% else %}
+      <p class="hint" style="margin-top:12px">Belum ada berkas.</p>
+      {% endif %}
+    </section>
+
+    <!-- ============================ KIRIM ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-send"/></svg>Kirim sekarang</h2>
+        <p>Isi email sama untuk semua perusahaan. Subject &amp; CV mengikuti tiap baris daftar.</p>
+      </div>
+
+      {% if public_url %}
+      <div class="notice ok">
+        <svg class="ic"><use href="#i-eye"/></svg>
+        <div><b>Pelacakan baca aktif.</b> Piksel memakai <span class="mono">{{ public_url }}</span> —
+        kolom <b>Baca</b> terisi saat email kemungkinan dibuka.</div>
+      </div>
+      {% else %}
+      <div class="notice warn">
+        <svg class="ic"><use href="#i-alert"/></svg>
+        <div><b>Pelacakan baca belum aktif.</b> Email tetap terkirim, tapi kolom <b>Baca</b> tak terisi.
+        Jalankan lewat <span class="mono">./jalan-tunnel.sh</span>.</div>
+      </div>
+      {% endif %}
+
+      <form action="/send" method="post">
+        <div class="field">
+          <label for="body">Isi email</label>
+          <textarea id="body" name="body" placeholder="Dengan hormat,&#10;&#10;Saya bermaksud mengajukan lamaran kerja...&#10;&#10;Hormat saya,&#10;Nama Kamu" required></textarea>
+        </div>
+        <div class="field">
+          <label for="default_cv">CV default <span class="hint">(dipakai bila kolom cv kosong)</span></label>
+          <select id="default_cv" name="default_cv">
+            <option value="">— Tanpa lampiran default —</option>
+            {% for f in files %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+          </select>
+        </div>
+        <p class="hint" style="margin-bottom:14px">Dikirim ke {{ total }} tujuan — maksimum {{ daily_limit }} baris per proses.</p>
+        <button class="btn btn--accent btn--block" type="submit"><svg class="ic"><use href="#i-send"/></svg>Kirim lamaran</button>
+      </form>
+    </section>
+
+    <!-- ============================ JADWAL ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-clock"/></svg>Jadwal kirim otomatis</h2>
+        <p>Waktu server (WIB) sekarang <b class="mono">{{ now }}</b>. Jadwal berjalan sendiri selama aplikasi hidup.</p>
+      </div>
+
+      {% if jobs %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Waktu</th><th>Status</th><th>Hasil</th><th></th></tr></thead>
+          <tbody>
+          {% for j in jobs %}
+            <tr>
+              <td class="mono nowrap">{{ j.when_display }}</td>
+              <td><span class="badge {{ j.status }}">{{ j.status }}</span></td>
+              <td>{{ j.result or '—' }}</td>
+              <td class="nowrap">
+                {% if j.status == 'pending' %}
+                <form class="inline-form" action="/schedule/cancel" method="post">
+                  <input type="hidden" name="id" value="{{ j.id }}">
+                  <button class="btn btn--ghost btn--sm" type="submit"><svg class="ic ic-sm"><use href="#i-x"/></svg>Batal</button>
+                </form>
+                {% endif %}
+                <form class="inline-form" action="/schedule/delete" method="post">
+                  <input type="hidden" name="id" value="{{ j.id }}">
+                  <button class="btn btn--danger btn--sm" type="submit" title="Hapus jadwal"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty">
+        <svg class="ic"><use href="#i-clock"/></svg>
+        <p>Belum ada jadwal.</p>
+      </div>
+      {% endif %}
+
+      <form action="/schedule/add" method="post" style="margin-top:20px">
+        <div class="grid-2">
+          <div class="field">
+            <label for="sched-when">Waktu kirim</label>
+            <input id="sched-when" type="datetime-local" name="when" value="{{ now }}" required>
+          </div>
+          <div class="field">
+            <label for="sched-cv">CV default</label>
+            <select id="sched-cv" name="default_cv">
+              <option value="">— Tanpa lampiran default —</option>
+              {% for f in files %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="sched-body">Isi email untuk jadwal ini</label>
+          <textarea id="sched-body" name="body" placeholder="Isi email..." required></textarea>
+        </div>
+        <button class="btn btn--ghost" type="submit"><svg class="ic ic-sm"><use href="#i-clock"/></svg>Jadwalkan</button>
+      </form>
+    </section>
+
+    <!-- ============================ FORMAT CSV ============================ -->
+    <section class="section">
+      <div class="section__head">
+        <h2><svg class="ic"><use href="#i-info"/></svg>Format CSV</h2>
+        <p>Toleran format: pemisah koma, titik-koma, tab, atau <span class="mono">|</span>;
+           nama kolom tak peduli huruf besar/kecil.</p>
+      </div>
+      <pre>email,subject,cv
+hrd@abc.com,Lamaran Operator Produksi,
+hrd@xyz.com,Lamaran Admin,cv-admin.pdf
+recruitment@def.com,Lamaran Staff Gudang,</pre>
+    </section>
+
+  </div>
+</main>
+
+<footer class="foot">
+  <span>Pecut Lamaran Gmail</span>
+  <span class="dot-sep"></span>
+  <span>Batas aplikasi {{ daily_limit }} baris per proses</span>
+  <span class="dot-sep"></span>
+  <a href="/replies">Cek balasan</a>
+  <span class="dot-sep"></span>
+  <a href="/">Muat ulang</a>
+</footer>
+</body>
+</html>
