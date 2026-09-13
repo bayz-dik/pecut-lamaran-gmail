@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 210" width="900" height="210" role="img" aria-label="Pecut Lamaran Gmail">
+  <title>Pecut Lamaran Gmail</title>
+  <style>
+    /* Pixel art, bukan foto: tajam di semua ukuran dan cocok untuk tool CLI.
+       Tiap gerak punya alasan, tidak ada animasi hiasan:
+       - gelombang teal menyapu wordmark, menandai nama produk sebagai fokus;
+       - amplop naik-turun, menandai proses "sedang mengirim";
+       - titik berbaris terbang keluar dari amplop, mewakili email yang terkirim.
+       Warna diambil dari aplikasi (tinta, teal, kertas) supaya satu identitas. */
+    .panel { fill: #f3f1ec; stroke: #e7e1d7; stroke-width: 1.5; }
+    .l rect { fill: #1b1a17; }
+    .l1 { animation: sweep 2.8s ease-in-out infinite 0s; }
+    .l2 { animation: sweep 2.8s ease-in-out infinite .18s; }
+    .l3 { animation: sweep 2.8s ease-in-out infinite .36s; }
+    .l4 { animation: sweep 2.8s ease-in-out infinite .54s; }
+    .l5 { animation: sweep 2.8s ease-in-out infinite .72s; }
+    @keyframes sweep {
+      0%, 100% { fill: #1b1a17; }
+      38%      { fill: #0f6d6a; }
+      62%      { fill: #0f6d6a; }
+    }
+    .env rect { fill: #1b1a17; }
+    .env { animation: bob 3.2s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .dot { fill: #0f6d6a; animation: fly 2.4s ease-out infinite; }
+    .d1 { animation-delay: 0s; }
+    .d2 { animation-delay: .42s; }
+    .d3 { animation-delay: .84s; }
+    .d4 { animation-delay: 1.26s; }
+    @keyframes fly {
+      0%   { transform: translate(0, 0); opacity: 0; }
+      18%  { opacity: 1; }
+      72%  { opacity: 1; }
+      100% { transform: translate(148px, -10px); opacity: 0; }
+    }
+    .sub { font: 600 15px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+            letter-spacing: 4.2px; fill: #8c867b; }
+    @media (prefers-reduced-motion: reduce) {
+      .l1, .l2, .l3, .l4, .l5, .env, .dot { animation: none; }
+    }
+  </style>
+  <rect class="panel" x="0.75" y="0.75" width="898.5" height="208.5" rx="20"/>
+  <g class="word">
+    <g class="l l1">
+      <rect x="56" y="58" width="13" height="13"/>
+      <rect x="69" y="58" width="13" height="13"/>
+      <rect x="82" y="58" width="13" height="13"/>
+      <rect x="95" y="58" width="13" height="13"/>
+      <rect x="56" y="71" width="13" height="13"/>
+      <rect x="108" y="71" width="13" height="13"/>
+      <rect x="56" y="84" width="13" height="13"/>
+      <rect x="108" y="84" width="13" height="13"/>
+      <rect x="56" y="97" width="13" height="13"/>
+      <rect x="69" y="97" width="13" height="13"/>
+      <rect x="82" y="97" width="13" height="13"/>
+      <rect x="95" y="97" width="13" height="13"/>
+      <rect x="56" y="110" width="13" height="13"/>
+      <rect x="56" y="123" width="13" height="13"/>
+      <rect x="56" y="136" width="13" height="13"/>
+    </g>
+    <g class="l l2">
+      <rect x="134" y="58" width="13" height="13"/>
+      <rect x="147" y="58" width="13" height="13"/>
+      <rect x="160" y="58" width="13" height="13"/>
+      <rect x="173" y="58" width="13" height="13"/>
+      <rect x="186" y="58" width="13" height="13"/>
+      <rect x="134" y="71" width="13" height="13"/>
+      <rect x="134" y="84" width="13" height="13"/>
+      <rect x="134" y="97" width="13" height="13"/>
+      <rect x="147" y="97" width="13" height="13"/>
+      <rect x="160" y="97" width="13" height="13"/>
+      <rect x="173" y="97" width="13" height="13"/>
+      <rect x="134" y="110" width="13" height="13"/>
+      <rect x="134" y="123" width="13" height="13"/>
+      <rect x="134" y="136" width="13" height="13"/>
+      <rect x="147" y="136" width="13" height="13"/>
+      <rect x="160" y="136" width="13" height="13"/>
+      <rect x="173" y="136" width="13" height="13"/>
+      <rect x="186" y="136" width="13" height="13"/>
+    </g>
+    <g class="l l3">
+      <rect x="225" y="58" width="13" height="13"/>
+      <rect x="238" y="58" width="13" height="13"/>
+      <rect x="251" y="58" width="13" height="13"/>
+      <rect x="212" y="71" width="13" height="13"/>
+      <rect x="264" y="71" width="13" height="13"/>
+      <rect x="212" y="84" width="13" height="13"/>
+      <rect x="212" y="97" width="13" height="13"/>
+      <rect x="212" y="110" width="13" height="13"/>
+      <rect x="212" y="123" width="13" height="13"/>
+      <rect x="264" y="123" width="13" height="13"/>
+      <rect x="225" y="136" width="13" height="13"/>
+      <rect x="238" y="136" width="13" height="13"/>
+      <rect x="251" y="136" width="13" height="13"/>
+    </g>
+    <g class="l l4">
+      <rect x="290" y="58" width="13" height="13"/>
+      <rect x="342" y="58" width="13" height="13"/>
+      <rect x="290" y="71" width="13" height="13"/>
+      <rect x="342" y="71" width="13" height="13"/>
+      <rect x="290" y="84" width="13" height="13"/>
+      <rect x="342" y="84" width="13" height="13"/>
+      <rect x="290" y="97" width="13" height="13"/>
+      <rect x="342" y="97" width="13" height="13"/>
+      <rect x="290" y="110" width="13" height="13"/>
+      <rect x="342" y="110" width="13" height="13"/>
+      <rect x="290" y="123" width="13" height="13"/>
+      <rect x="342" y="123" width="13" height="13"/>
+      <rect x="303" y="136" width="13" height="13"/>
+      <rect x="316" y="136" width="13" height="13"/>
+      <rect x="329" y="136" width="13" height="13"/>
+    </g>
+    <g class="l l5">
+      <rect x="368" y="58" width="13" height="13"/>
+      <rect x="381" y="58" width="13" height="13"/>
+      <rect x="394" y="58" width="13" height="13"/>
+      <rect x="407" y="58" width="13" height="13"/>
+      <rect x="420" y="58" width="13" height="13"/>
+      <rect x="394" y="71" width="13" height="13"/>
+      <rect x="394" y="84" width="13" height="13"/>
+      <rect x="394" y="97" width="13" height="13"/>
+      <rect x="394" y="110" width="13" height="13"/>
+      <rect x="394" y="123" width="13" height="13"/>
+      <rect x="394" y="136" width="13" height="13"/>
+    </g>
+  </g>
+  <g class="env">
+      <rect x="520" y="54" width="12" height="12"/>
+      <rect x="532" y="54" width="12" height="12"/>
+      <rect x="544" y="54" width="12" height="12"/>
+      <rect x="556" y="54" width="12" height="12"/>
+      <rect x="568" y="54" width="12" height="12"/>
+      <rect x="580" y="54" width="12" height="12"/>
+      <rect x="592" y="54" width="12" height="12"/>
+      <rect x="604" y="54" width="12" height="12"/>
+      <rect x="616" y="54" width="12" height="12"/>
+      <rect x="628" y="54" width="12" height="12"/>
+      <rect x="640" y="54" width="12" height="12"/>
+      <rect x="652" y="54" width="12" height="12"/>
+      <rect x="520" y="66" width="12" height="12"/>
+      <rect x="532" y="66" width="12" height="12"/>
+      <rect x="640" y="66" width="12" height="12"/>
+      <rect x="652" y="66" width="12" height="12"/>
+      <rect x="520" y="78" width="12" height="12"/>
+      <rect x="544" y="78" width="12" height="12"/>
+      <rect x="628" y="78" width="12" height="12"/>
+      <rect x="652" y="78" width="12" height="12"/>
+      <rect x="520" y="90" width="12" height="12"/>
+      <rect x="556" y="90" width="12" height="12"/>
+      <rect x="616" y="90" width="12" height="12"/>
+      <rect x="652" y="90" width="12" height="12"/>
+      <rect x="520" y="102" width="12" height="12"/>
+      <rect x="568" y="102" width="12" height="12"/>
+      <rect x="604" y="102" width="12" height="12"/>
+      <rect x="652" y="102" width="12" height="12"/>
+      <rect x="520" y="114" width="12" height="12"/>
+      <rect x="580" y="114" width="12" height="12"/>
+      <rect x="592" y="114" width="12" height="12"/>
+      <rect x="652" y="114" width="12" height="12"/>
+      <rect x="520" y="126" width="12" height="12"/>
+      <rect x="652" y="126" width="12" height="12"/>
+      <rect x="520" y="138" width="12" height="12"/>
+      <rect x="532" y="138" width="12" height="12"/>
+      <rect x="544" y="138" width="12" height="12"/>
+      <rect x="556" y="138" width="12" height="12"/>
+      <rect x="568" y="138" width="12" height="12"/>
+      <rect x="580" y="138" width="12" height="12"/>
+      <rect x="592" y="138" width="12" height="12"/>
+      <rect x="604" y="138" width="12" height="12"/>
+      <rect x="616" y="138" width="12" height="12"/>
+      <rect x="628" y="138" width="12" height="12"/>
+      <rect x="640" y="138" width="12" height="12"/>
+      <rect x="652" y="138" width="12" height="12"/>
+  </g>
+    <rect class="dot d1" x="686" y="98" width="9" height="9"/>
+    <rect class="dot d2" x="686" y="98" width="9" height="9"/>
+    <rect class="dot d3" x="686" y="98" width="9" height="9"/>
+    <rect class="dot d4" x="686" y="98" width="9" height="9"/>
+  <text class="sub" x="56" y="180">LAMARAN GMAIL</text>
+</svg>

@@ -1,6 +1,12 @@
 
 # Pecut Lamaran Gmail — Termux/Ubuntu
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/bayz-dik/pecut-lamaran-gmail/main/assets/banner.svg"
+       alt="Pecut Lamaran Gmail — wordmark pixel, amplop naik-turun, dan titik email yang terbang keluar"
+       width="900">
+</p>
+
 Aplikasi Flask: 1 akun Gmail pengirim → banyak email perusahaan tujuan.
 
 ## Isi
@@ -237,6 +243,26 @@ Desain memakai sistem sendiri di `static/style.css` (vanilla CSS, tanpa framewor
 
 Template: `templates/index.html` (Kirim) dan `templates/replies.html` (Balasan),
 keduanya meng-include `_icons.html` dan memuat `style.css`.
+
+### Banner animasi di README
+`assets/banner.svg` adalah banner pixel-art di bagian atas README ini — SVG
+animasi murni (CSS keyframes, tanpa JS/GIF), jadi tetap tajam di semua ukuran
+dan ikut mematuhi `prefers-reduced-motion` (animasi mati kalau pengguna
+menonaktifkannya di OS).
+
+- Wordmark **PECUT** disapu gelombang teal, amplop naik-turun, dan titik teal
+  terbang keluar dari amplop (mewakili email terkirim).
+- Warnanya diambil dari aplikasi (tinta `#1b1a17`, teal `#0f6d6a`, kertas
+  `#f3f1ec`) supaya satu identitas dengan UI.
+
+Digenerate, bukan ditulis tangan — wordmark pixel butuh ratusan `<rect>` dengan
+posisi presisi. Font pixel 5x7 di skripnya adalah sumber kebenaran, jadi
+mengubah teks/ukuran cukup ubah variabel di sana:
+```bash
+python3 assets/_gen_banner.py   # -> assets/banner.svg
+```
+README memakai URL `raw.githubusercontent.com` (bukan path relatif) supaya
+animasi tetap jalan di halaman GitHub dan di renderer markdown lain.
 
 ### Responsif (320px → desktop lebar)
 
