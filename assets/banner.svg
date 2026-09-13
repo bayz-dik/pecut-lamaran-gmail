@@ -8,12 +8,16 @@
        - titik berbaris terbang keluar dari amplop, mewakili email yang terkirim.
        Warna diambil dari aplikasi (tinta, teal, kertas) supaya satu identitas. */
     .panel { fill: #f3f1ec; stroke: #e7e1d7; stroke-width: 1.5; }
+    /* Animasi WAJIB dipasang ke elemen rect, bukan ke grup huruf: tiap rect
+       punya aturan .l rect { fill: INK } sendiri, dan nilai langsung pada
+       elemen mengalahkan fill warisan dari grup. Kalau dipasang di grup,
+       sapuan teal tidak pernah terlihat (grup jadi teal, rect tetap tinta). */
     .l rect { fill: #1b1a17; }
-    .l1 { animation: sweep 2.8s ease-in-out infinite 0s; }
-    .l2 { animation: sweep 2.8s ease-in-out infinite .18s; }
-    .l3 { animation: sweep 2.8s ease-in-out infinite .36s; }
-    .l4 { animation: sweep 2.8s ease-in-out infinite .54s; }
-    .l5 { animation: sweep 2.8s ease-in-out infinite .72s; }
+    .l1 rect { animation: sweep 2.8s ease-in-out infinite 0s; }
+    .l2 rect { animation: sweep 2.8s ease-in-out infinite .18s; }
+    .l3 rect { animation: sweep 2.8s ease-in-out infinite .36s; }
+    .l4 rect { animation: sweep 2.8s ease-in-out infinite .54s; }
+    .l5 rect { animation: sweep 2.8s ease-in-out infinite .72s; }
     @keyframes sweep {
       0%, 100% { fill: #1b1a17; }
       38%      { fill: #0f6d6a; }
@@ -36,7 +40,7 @@
     .sub { font: 600 15px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
             letter-spacing: 4.2px; fill: #8c867b; }
     @media (prefers-reduced-motion: reduce) {
-      .l1, .l2, .l3, .l4, .l5, .env, .dot { animation: none; }
+      .l1 rect, .l2 rect, .l3 rect, .l4 rect, .l5 rect, .env, .dot { animation: none; }
     }
   </style>
   <rect class="panel" x="0.75" y="0.75" width="898.5" height="208.5" rx="20"/>
