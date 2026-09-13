@@ -1,9 +1,9 @@
 
-# Pecut Lamaran Gmail — Termux/Ubuntu
+# Pecut Lamaran Gmail (Termux/Ubuntu)
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/bayz-dik/pecut-lamaran-gmail/main/assets/banner.svg"
-       alt="Pecut Lamaran Gmail — wordmark pixel, amplop naik-turun, dan titik email yang terbang keluar"
+       alt="Pecut Lamaran Gmail: wordmark pixel, amplop naik-turun, dan titik email yang terbang keluar"
        width="900">
 </p>
 
@@ -12,14 +12,12 @@ Aplikasi Flask: 1 akun Gmail pengirim → banyak email perusahaan tujuan.
 ## Isi
 - 1 akun Gmail sebagai pengirim (OAuth).
 - Banyak email perusahaan sebagai tujuan di `daftar.csv`.
-- Isi email sama untuk semua; subject/CV bisa berbeda per baris.
-- CV/berkas boleh sama (default) atau berbeda per baris.
+- Isi email sama untuk semua; subject dan CV boleh berbeda per baris. Kolom `cv` kosong berarti memakai CV default yang dipilih di halaman.
 - Batas aplikasi: maksimal 500 baris per sekali proses.
 - `sent_log.csv` menyimpan hasil kirim; `sent_log_dry.csv` untuk mode simulasi.
 
 ## Instalasi
-Cara paling gampang — skrip ini otomatis membuat venv & memasang dependensi
-kalau belum ada:
+Skrip ini otomatis membuat venv dan memasang dependensi kalau belum ada:
 
 ```bash
 cd ~/pecut-lamaran-gmail
@@ -40,15 +38,15 @@ pip install -r requirements.txt
 python app.py
 ```
 
-> Penting: jalankan lewat `./run.sh` (atau aktifkan venv dulu). Kalau
-> menjalankan `python app.py` dengan Python sistem, akan muncul pesan
-> "Gagal memuat dependensi" karena Flask hanya ada di dalam `.venv`.
+> Jalankan lewat `./run.sh` (atau aktifkan venv dulu). `python app.py` dengan
+> Python sistem akan gagal dengan pesan "Gagal memuat dependensi" karena Flask
+> hanya ada di dalam `.venv`.
 
 Buka `http://127.0.0.1:5000`.
 
 ## Halaman
 
-### 1. Daftar tujuan — tersinkron dengan web UI
+### 1. Daftar tujuan (tersinkron dengan web UI)
 `daftar.csv` adalah sumber tunggal. Halaman membacanya langsung tiap dibuka,
 dan semua aksi di web menulis balik ke file itu:
 
@@ -82,30 +80,29 @@ ringkasan, dan status **BELUM DIBACA / dibaca**, plus tanda `lamaran` untuk
 pengirim yang ada di daftar tujuan. Tombol **Tandai dibaca** menghapus label
 `UNREAD` pesan itu.
 
-Agar cepat, metadata semua pesan diambil dalam **satu permintaan batch**
-(bukan satu-per-satu), dan hasilnya di-cache singkat (lihat `REPLIES_TTL`,
-default 60 detik). Kunjungan pertama ±1 detik; kunjungan berikutnya hampir
-instan. Tombol **🔄 Ambil terbaru dari Gmail** memaksa muat ulang dari Gmail
-sekarang.
+Agar cepat, metadata semua pesan diambil dalam satu permintaan batch, bukan
+satu-per-satu, dan hasilnya di-cache singkat (lihat `REPLIES_TTL`, default 60
+detik). Kunjungan pertama ±1 detik; kunjungan berikutnya hampir instan. Tombol
+**🔄 Ambil terbaru dari Gmail** memaksa muat ulang dari Gmail sekarang.
 
-Catatan: Gmail API **tidak** menyediakan "read receipt" (apakah penerima
-membuka email kita). Yang bisa dipantau: pesan masuk sebagai balasan, dan
-status dibaca/belum dibaca di kotak masuk kita sendiri.
+Catatan: Gmail API tidak menyediakan "read receipt" (apakah penerima membuka
+email kita). Yang bisa dipantau: pesan masuk sebagai balasan, dan status
+dibaca/belum dibaca di kotak masuk kita sendiri.
 
 ## OAuth (dua izin terpisah)
 Letakkan file OAuth Desktop Client dari Google Cloud sebagai `credentials.json`.
 
-**Tidak perlu browser otomatis.** Buka halaman depan → menu **🔑 Izin Google**,
+Tidak perlu browser otomatis. Buka halaman depan → menu **🔑 Izin Google**,
 lalu tekan **Hubungkan**:
 
 - **Kirim email** (scope `gmail.send`) → disimpan di `token.json`.
 - **Baca kotak masuk** (scope `gmail.readonly` + `gmail.modify`) → disimpan di
   `token_read.json`.
 
-Alurnya: kamu diklik → diarahkan ke halaman izin Google → setujui → Google
-mengembalikan ke `http://127.0.0.1:5000/oauth/callback` → selesai. Karena
-browser-nya adalah browser yang sedang kamu pakai (di HP), tidak ada
-percobaan membuka browser otomatis yang biasanya gagal di Termux
+Alurnya: kamu klik tombolnya, diarahkan ke halaman izin Google, setujui, lalu
+Google mengembalikan ke `http://127.0.0.1:5000/oauth/callback`. Browsernya
+adalah browser yang sedang kamu pakai (di HP), jadi tidak ada percobaan
+membuka browser otomatis yang biasanya gagal di Termux
 (`could not locate runnable browser`).
 
 Scope baca dipisah supaya kirim tetap bisa jalan walau izin baca belum diberikan.
@@ -146,17 +143,16 @@ Nama file pada CSV harus sama dengan file di folder `uploads/`.
 ### Toleransi format
 File CSV boleh datang dari mana saja (termasuk ekspor Excel/HP):
 
-- Pemisah boleh koma `,`, titik-koma `;`, tab, atau `|` — dideteksi otomatis.
+- Pemisah boleh koma `,`, titik-koma `;`, tab, atau `|`. Pemisah dideteksi otomatis.
 - Nama kolom tak peduli huruf besar/kecil (`Email`, `SUBJECT`, dst).
 - BOM dan baris berakhiran CRLF (Windows/Android) ditangani.
 - Encoding: UTF-8 atau Latin-1/Windows-1252.
 - Nama file boleh `daftar.csv`, `Daftar.csv`, `DAFTAR.CSV` (tak peduli huruf).
 
 Header wajib memuat kolom `email` dan `subject` (kolom `cv` opsional).
-Kalau file tak terbaca, halaman menampilkan peringatan jelas — bukan error.
+Kalau file tak terbaca, halaman menampilkan peringatan jelas, bukan error.
 
 ## Sinkronisasi daftar.csv
-- Halaman **selalu** membaca ulang `daftar.csv` dari disk tiap kali dibuka.
 - Header no-cache dipasang supaya browser HP tidak menyajikan versi lama.
   Kalau kamu mengedit file itu dari aplikasi lain, muat ulang halaman
   (link **🔄 Muat ulang**).
@@ -183,7 +179,7 @@ file), pakai kotak **Impor langsung dari folder HP**:
 ## Pelacakan "dibaca" (tracking pixel)
 
 Email tidak punya laporan "penerima membuka" seperti WhatsApp. Satu-satunya cara
-nyata adalah **tracking pixel**: gambar 1x1 tak terlihat yang disisipkan ke tiap
+nyata adalah tracking pixel: gambar 1x1 tak terlihat yang disisipkan ke tiap
 email. Saat penerima membuka email dan client-nya memuat gambar, server ini
 mencatat kejadiannya.
 
@@ -198,14 +194,14 @@ diakses penerima dan kolom **Baca** tidak akan terisi.
 Hasilnya muncul di kolom **Baca** pada tabel: `🟡 dibuka? Nx` kalau piksel
 pernah dimuat, `belum` kalau email terkirim tapi belum ada sinyal.
 
-### Batasan penting (jujur)
-- **Bukan bukti pasti.** Banyak email client memblokir gambar otomatis
-  (Outlook kantor) → dibaca tapi tak tercatat. Sebaliknya, Gmail/Apple Mail
-  kadang memuat gambar otomatis → tercatat padahal baru diproses mesin.
-- **Hanya untuk email yang dikirim setelah fitur ini dipasang.** Email lama
+### Batasan
+- Bukan bukti pasti. Banyak email client memblokir gambar otomatis
+  (Outlook kantor), jadi email dibaca tapi tak tercatat. Sebaliknya, Gmail/Apple
+  Mail kadang memuat gambar otomatis, jadi tercatat padahal baru diproses mesin.
+- Hanya untuk email yang dikirim setelah fitur ini dipasang. Email lama
   tak punya piksel, jadi tak bisa dilacak.
-- **URL tunnel gratis berubah tiap restart** (`*.trycloudflare.com`), sehingga
-  piksel di email lama jadi mati kalau tunnel dimatikan/di-restart. Untuk
+- URL tunnel gratis berubah tiap restart (`*.trycloudflare.com`), sehingga
+  piksel di email lama jadi mati kalau tunnel dimatikan atau di-restart. Untuk
   pemakaian serius, pakai named tunnel dengan domain tetap.
 - Karena itu statusnya ditulis "kemungkinan dibuka", bukan "pasti dibaca".
 
@@ -217,11 +213,11 @@ piksel dimuat + user-agent).
 | Perintah | Fungsi |
 |---|---|
 | `./run.sh` | Jalankan aplikasi saja (tanpa pelacakan baca) |
-| `./jalan-tunnel.sh` | Jalankan + tunnel publik (pelacakan baca AKTIF) |
+| `./jalan-tunnel.sh` | Jalankan + tunnel publik (pelacakan baca aktif) |
 | `./stop.sh` | Hentikan aplikasi & tunnel (kalau nyangkut) |
 
-Kalau muncul `Address already in use` / port 5000 dipakai program lain:
-`jalan-tunnel.sh` sudah menanganinya sendiri — ia membersihkan sisa proses lama
+Kalau muncul `Address already in use` atau port 5000 dipakai program lain:
+`jalan-tunnel.sh` sudah menanganinya sendiri. Ia membersihkan sisa proses lama
 milik aplikasi ini, dan kalau port masih terpakai program lain, otomatis pindah
 ke port bebas berikutnya (5001, 5002, ...). Nomor port yang dipakai tertulis di
 pesan pembuka. Untuk memaksa port tertentu:
@@ -231,12 +227,12 @@ PECUT_PORT=5050 ./jalan-tunnel.sh
 
 ## Tampilan (frontend)
 
-Desain memakai sistem sendiri di `static/style.css` (vanilla CSS, tanpa framework):
+Desain memakai CSS vanilla di `static/style.css`, tanpa framework:
 
 - Palet: latar kertas hangat, aksen teal tunggal, tombol utama tinta gelap.
 - Font: **Outfit** (judul & isi) + **JetBrains Mono** (angka/email), via Google Fonts
   dengan fallback sistem kalau offline.
-- Ikon: satu set SVG (`templates/_icons.html`), stroke konsisten — dipakai via
+- Ikon: satu set SVG (`templates/_icons.html`), stroke konsisten. Dipakai via
   `<svg class="ic"><use href="#i-send"/></svg>`.
 - Komponen: `.section`, `.stat`, `.badge`, `.btn`, `.notice`, `.table-wrap`,
   `.empty`, plus skip-link, focus ring, dan grain halus.
@@ -245,7 +241,7 @@ Template: `templates/index.html` (Kirim) dan `templates/replies.html` (Balasan),
 keduanya meng-include `_icons.html` dan memuat `style.css`.
 
 ### Banner animasi di README
-`assets/banner.svg` adalah banner pixel-art di bagian atas README ini — SVG
+`assets/banner.svg` adalah banner pixel-art di bagian atas README ini: SVG
 animasi murni (CSS keyframes, tanpa JS/GIF), jadi tetap tajam di semua ukuran
 dan ikut mematuhi `prefers-reduced-motion` (animasi mati kalau pengguna
 menonaktifkannya di OS).
@@ -255,39 +251,39 @@ menonaktifkannya di OS).
 - Warnanya diambil dari aplikasi (tinta `#1b1a17`, teal `#0f6d6a`, kertas
   `#f3f1ec`) supaya satu identitas dengan UI.
 
-Digenerate, bukan ditulis tangan — wordmark pixel butuh ratusan `<rect>` dengan
+Digenerate, bukan ditulis tangan: wordmark pixel butuh ratusan `<rect>` dengan
 posisi presisi. Font pixel 5x7 di skripnya adalah sumber kebenaran, jadi
 mengubah teks/ukuran cukup ubah variabel di sana:
 ```bash
 python3 assets/_gen_banner.py   # -> assets/banner.svg
 ```
-README memakai URL `raw.githubusercontent.com` (bukan path relatif) supaya
+README memakai URL `raw.githubusercontent.com`, bukan path relatif, supaya
 animasi tetap jalan di halaman GitHub dan di renderer markdown lain.
 
 ### Responsif (320px → desktop lebar)
 
-Prinsipnya: **tidak ada scroll horizontal di level dokumen**. Yang lebar
-(tabel) menggulir sendiri di dalam `.table-wrap`, sisanya menyusut.
+Prinsipnya: tidak ada scroll horizontal di level dokumen. Yang lebar (tabel)
+menggulir sendiri di dalam `.table-wrap`, sisanya menyusut.
 
-- **Akar masalah yang dijaga:** anak grid/flex default `min-width: auto`, jadi
-  `.section` di dalam `.stack` menolak menyusut lebih kecil dari tabel
-  (dulu memaksa halaman jadi ~733px di HP). Aturan `.stack > * { min-width: 0 }`
-  + `.section { min-width: 0 }` membuat `.table-wrap` yang menggulir, bukan halaman.
-- **Tabel:** `.table-wrap` punya `overflow-x: auto`, momen inersia sentuh
+- Anak grid/flex default `min-width: auto`, jadi `.section` di dalam `.stack`
+  menolak menyusut lebih kecil dari tabel (dulu memaksa halaman jadi ~733px di
+  HP). Aturan `.stack > * { min-width: 0 }` + `.section { min-width: 0 }`
+  membuat `.table-wrap` yang menggulir, bukan halaman.
+- `.table-wrap` punya `overflow-x: auto`, momen inersia sentuh
   (`-webkit-overflow-scrolling: touch`), dan bayangan tepi CSS-only sebagai
   petunjuk bisa digeser. Token panjang (email, path) dibiarkan membungkus
   (`overflow-wrap: anywhere`) supaya tak menahan lebar minimum tabel.
-- **Breakpoint:** `≤900px` baris teks penuh; `≤640px` rapatkan padding, judul,
+- Breakpoint: `≤900px` baris teks penuh; `≤640px` rapatkan padding, judul,
   dan target sentuh (`.btn` ≥42px); `≤430px` topbar jadi dua baris dengan nav
   jadi dua tombol penuh; `≤340px` stat jadi satu kolom ringkas; `≥1600px`
   kontainer dibatasi 1240px.
-- **Perangkat sentuh:** `@media (hover: none)` mematikan efek hover-saja dan
-  menaikkan target sentuh (`.btn` ≥44px, `.btn--sm` ≥38px) — termasuk HP
+- Perangkat sentuh: `@media (hover: none)` mematikan efek hover-saja dan
+  menaikkan target sentuh (`.btn` ≥44px, `.btn--sm` ≥38px), termasuk HP
   landscape dan tablet yang lebarnya di atas 640px.
 
-Diverifikasi di browser sungguhan (Chrome, CDP) pada 320/360/390/430/431/480/
-600/640/641/768/1024/1440/1920px untuk halaman Kirim dan Balasan: 0 overflow,
-tabel menggulir di dalam, target sentuh ≥38px, tidak ada perubahan pada form/aksi.
+Diverifikasi di Chrome (CDP) pada 320/360/390/430/431/480/600/640/641/768/1024/
+1440/1920px untuk halaman Kirim dan Balasan: 0 overflow, tabel menggulir di
+dalam, target sentuh ≥38px, form/aksi tidak berubah.
 
 ## Catatan
 Aplikasi tidak mencoba melewati batas/pembatasan Gmail. Angka 500 adalah
